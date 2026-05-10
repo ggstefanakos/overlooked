@@ -37,7 +37,7 @@ while i < total_pages:
     response = discover.movie(primary_release_year=years[0], page=i)
     total_pages = response["total_pages"]
     tmp_time = time.perf_counter()
-    print(f'Progress: {i*100/total_pages:.3f} %  ({i:3d}/{total_pages}) ({int((tmp_time - start)//60):2d} min elapsed)')
+    print(f'Progress: {i*100/total_pages:6.3f} %  ({i:3d}/{total_pages}) ({int((tmp_time - start)//60):2d} min elapsed)')
     results = response["results"]
 
     for result in results:
