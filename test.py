@@ -49,7 +49,7 @@ start = time.perf_counter()
 # for page_num in range(1, min(total_pages, 5)): # Testing with 5 pages
 for page_num in range(1, total_pages):
     tmp_time = time.perf_counter()
-    print(f'Progress: {page_num*100/total_pages:6.3f} %  ({page_num:3d}/{total_pages}) ({int((tmp_time - start)//60):2d} min elapsed)')
+    print(f'Progress: {page_num*100/total_pages:6.3f} %  ({page_num:3d}/{total_pages}) ({int((tmp_time - start)//60):2d} min elapsed)',end='\r')
     response = discover.movie(primary_release_year=year, page=page_num)
     movie_ids = [m['id'] for m in response['results']]
 

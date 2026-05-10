@@ -62,7 +62,7 @@ with ThreadPoolExecutor(max_workers=15) as executor:
 
                 if page_num % 10 == 0:
                     elapsed = (time.perf_counter() - start) / 60
-                    print(f'Year {year} | Progress: {page_num/total_pages:4.1%} | Elapsed: {elapsed:3.1f} min')
+                    print(f'Year {year} | Progress: {page_num/total_pages:>5.1%} ({page_num:3d}/{total_pages}) | Elapsed: {elapsed:3.1f} min',end='\r')
             
             except Exception as e:
                 print(f"Error on page {page_num}: {e}")
