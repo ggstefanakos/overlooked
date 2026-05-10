@@ -71,6 +71,6 @@ with ThreadPoolExecutor(max_workers=15) as executor:
         # Save year-end data
         if all_movie_data:
             df = pd.DataFrame(all_movie_data)
-            df.to_csv(f'movies_{year}.csv', index=False)
+            df.to_csv(f'movies_from_{year}.csv', index=False)
             
         print(f'Completed {year} in {(time.perf_counter() - start)/60:.2f} min')
