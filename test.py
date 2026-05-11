@@ -46,8 +46,8 @@ all_movie_data = []
 
 # Loop through pages (you can also parallelize this, but start here)
 start = time.perf_counter()
-# for page_num in range(1, min(total_pages, 5)): # Testing with 5 pages
-for page_num in range(1, total_pages):
+
+for page_num in range(1, total_pages): # na to kano kai edo ana eksamino
     tmp_time = time.perf_counter()
     print(f'Progress: {page_num*100/total_pages:6.3f} %  ({page_num:3d}/{total_pages}) ({int((tmp_time - start)//60):2d} min elapsed)',end='\r')
     response = discover.movie(primary_release_year=year, page=page_num)

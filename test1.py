@@ -37,7 +37,7 @@ def fetch_movie_data(movie_id):
 
 # --- Main Logic ---
 discover = tmdb.Discover()
-years = range(2004, 2025)
+years = range(2005, 2025)
 
 # 1. Keep the executor open for the entire process
 with ThreadPoolExecutor(max_workers=15) as executor:
@@ -50,23 +50,42 @@ with ThreadPoolExecutor(max_workers=15) as executor:
         
         all_movie_data = []
 
-        for page_num in range(1, total_pages + 1):
-            # Fetch the list of IDs for the current page
-            try:
-                response = discover.movie(primary_release_year=year, page=page_num)
-                movie_ids = [m['id'] for m in response.get('results', [])]
-                
-                # 2. Map the work to the existing thread pool
-                results = list(executor.map(fetch_movie_data, movie_ids))
-                all_movie_data.extend([r for r in results if r])
+        if total_pages <= 500:
+            for page_num in range(1, min(501, total_pages + 1)):
+                # Fetch the list of IDs for the current page
+                try:
+                    response = discover.movie(primary_release_year=year, page=page_num)
+                    movie_ids = [m['id'] for m in response.get('results', [])]
+                    
+                    # 2. Map the work to the existing thread pool
+                    results = list(executor.map(fetch_movie_data, movie_ids))
+                    all_movie_data.extend([r for r in results if r])
 
-                if page_num % 10 == 0:
+                    # if page_num % 10 == 0:
                     elapsed = (time.perf_counter() - start) / 60
-                    print(f'Year {year} | Progress: {page_num/total_pages:>5.1%} ({page_num:3d}/{total_pages}) | Elapsed: {elapsed:3.1f} min',end='\r')
-            
-            except Exception as e:
-                print(f"Error on page {page_num}: {e}")
-                continue
+                    print(f'Year {year} | Progress: {page_num/total_pages:>5.1%} ({page_num}/{total_pages}) | Elapsed: {elapsed:3.1f} min',end='\r')
+                
+                except Exception as e:
+                    print(f"Error on page {page_num}: {e}")
+                    continue
+        else:
+            for page_num in range(1, total_pages + 1):
+                # Fetch the list of IDs for the current page
+                try:
+                    response = discover.movie(primary_release_year=year, page=page_num) # na to kano ana eksamiino
+                    movie_ids = [m['id'] for m in response.get('results', [])]
+                    
+                    # 2. Map the work to the existing thread pool
+                    results = list(executor.map(fetch_movie_data, movie_ids))
+                    all_movie_data.extend([r for r in results if r])
+
+                    # if page_num % 10 == 0:
+                    elapsed = (time.perf_counter() - start) / 60
+                    print(f'Year {year} | Progress: {page_num/total_pages:>5.1%} ({page_num}/{total_pages}) | Elapsed: {elapsed:3.1f} min',end='\r')
+                
+                except Exception as e:
+                    print(f"Error on page {page_num}: {e}")
+                    continue
 
         # Save year-end data
         if all_movie_data:
