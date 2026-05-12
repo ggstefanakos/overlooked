@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-for year in range(2000, 2008):
+for year in range(2000, 2001):
 
     movies = pd.read_csv(f"movies_from_{year}.csv")
     try:
@@ -18,6 +18,8 @@ for year in range(2000, 2008):
     # sns.scatterplot(data=movies[movies['runtime']<200], x="runtime", y="revenue")
     
     # sns.scatterplot(data=movies, x="release_date", y="revenue")
+    # sns.histplot(data=movies, x='release_date')
+    sns.boxplot(data=movies[movies['certification'] != 'NR'], x='certification', y='revenue')
 
     # sns.scatterplot(data=movies[movies['revenue'] > 1e7], x="revenue", y="vote_average")
     # sns.scatterplot(data=movies, x="budget", y="vote_average")
