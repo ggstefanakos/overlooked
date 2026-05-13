@@ -38,10 +38,11 @@ def fetch_movie_data(movie_id):
 
 # --- Main Logic ---
 discover = tmdb.Discover()
-years = range(2013, 2026)
+years = range(2015, 2026)
 month_names = {1:'January', 2:'February', 3:'March', 4:'April', 5:'May', 6:'June', 7:'July', 8:'August', 9:'September', 10:'October', 11:'November', 12:'December'}
 for year in years:
     start = time.perf_counter()
+    last_time = 0.0
 
     all_movie_data = []
     print(f'Year {year}:')
@@ -54,7 +55,7 @@ for year in years:
 
         for page_num in range(1, total_pages + 1):
 
-            print(f'\t\tProgress: {page_num/total_pages:.2%} ({page_num}/{total_pages}) | Elapsed: {(time.perf_counter() - start)/60:.2f} min',end='\r')
+            print(f'\t\tProgress: {page_num/total_pages:.2%} ({page_num}/{total_pages}) | Elapsed: {(time.perf_counter() - start)/60:.2f} min (+{(time.perf_counter() - start - last_time)/60:.2f} min)',end='\r')
             response = discover.movie(primary_release_date_gte=f'{year}-{month}-01',primary_release_date_lte=f'{year}-{month}-{last_day}', page=page_num)
             movie_ids = [m['id'] for m in response['results']]
 
@@ -64,6 +65,8 @@ for year in years:
 
             # Filter out None results from errors
             all_movie_data.extend([r for r in results if r])
+
+        last_time = time.perf_counter()
 
     # Create DataFrame once
     df = pd.DataFrame(all_movie_data)

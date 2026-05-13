@@ -2,24 +2,32 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-for year in range(2000, 2001):
+for year in range(2000, 2005):
 
     movies = pd.read_csv(f"movies_from_{year}.csv")
-    try:
-        movies['release_date'] = pd.to_datetime(movies['release_date'], format='mixed')
+    # try:
+    #     movies['release_date'] = pd.to_datetime(movies['release_date'], format='mixed')
 
-    except Exception as e:
-        print(f"Problem in {year}: {e}")
-        break
-    # sns.histplot(data=movies[movies['certification'] != 'NR'], x="certification")
+    # except Exception as e:
+    #     print(f"Problem in {year}: {e}")
+    #     break
+
+    # movies = movies[(movies['certification'] != 'NR') & (movies['vote_count'] > 500)]
+    # movies = movies[(movies['vote_count'] > 500)]
+    # movies = movies[(movies['certification'] != 'NR')]
+
+    # sns.histplot(data=movies, x="certification")
 
     # sns.scatterplot(data=movies, x="budget", y="revenue")
 
-    # sns.scatterplot(data=movies[movies['runtime']<200], x="runtime", y="revenue")
+    # sns.scatterplot(data=movies, x="runtime", y="revenue")
     
     # sns.scatterplot(data=movies, x="release_date", y="revenue")
-    # sns.histplot(data=movies, x='release_date')
-    sns.boxplot(data=movies[movies['certification'] != 'NR'], x='certification', y='revenue')
+    
+    # sns.boxplot(data=movies, x='certification', y='revenue')
+    # print(movies.describe())
+
+    # sns.barplot(data=movies, x='release_date', y='vote_count')
 
     # sns.scatterplot(data=movies[movies['revenue'] > 1e7], x="revenue", y="vote_average")
     # sns.scatterplot(data=movies, x="budget", y="vote_average")
