@@ -38,7 +38,7 @@ def fetch_movie_data(movie_id):
 
 # --- Main Logic ---
 discover = tmdb.Discover()
-years = range(2005, 2026)
+years = range(2013, 2026)
 month_names = {1:'January', 2:'February', 3:'March', 4:'April', 5:'May', 6:'June', 7:'July', 8:'August', 9:'September', 10:'October', 11:'November', 12:'December'}
 for year in years:
     start = time.perf_counter()
