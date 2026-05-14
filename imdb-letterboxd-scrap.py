@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 from time import sleep
-import os
 import pandas as pd
 
 def make_soup(url): # Returns BeautifulSoup Object of the url's page
@@ -23,12 +22,42 @@ def load_page(filename): # Load locally saved html
         return f.read()
     
 def get_letterboxd_score(soup):
-    text = soup.find('a', class_="averagerating tooltip")
-    text = text['text']
-    text_all = text.split()
-    score = float(text_all[3])
-    count = float(text_all[6].replace(','))
+    page = soup.select("script")
+    for element in page:
+        if '{"image":' in str(element):
+            desired_element = str(element)
+
+    desired_element = desired_element.split(',')
+    for value in desired_element:
+        if 'ratingValue' in value:
+            score = value.split(':')
+            score = float(score[1])
+        if 'ratingCount' in value:
+            count = value.split(':')
+            count = float(count[1])
+
     return score, count
+
+# def get_letterboxd_page_soup(title):
+#     title = title.lower()
+#     title = title.replace(' ','-')
+    
+#     title_page_soup = make_soup(url=f'https://letterboxd.com/film/{title}/')
+
+#     if 'Letterboxd - Not Found' not in title_page_soup.find('title'):
+#         return title_page_soup
+#     else:
+#         search_page_url = f'https://letterboxd.com/search/{title}/'
+
+#         title_page_soup = search_page_url + '1st result'
+#         return title_page_soup
+
+def get_letterboxd_page(imdb_id):
+    url = f'https://letterboxd.com/search/films/imdb:{imdb_id}/'
+
+    page_url = '1st result' + url
+
+    return page_url
 
 def get_imdb_score(soup):
     score = soup.find('span', class_='ipc-rating-star--rating')
@@ -44,30 +73,35 @@ def get_imdb_score(soup):
     return float(score), count
     
 def main():
-    for year in range(2000, 2026):
-        
-        movies = pd.read_csv(f"movies_from_{year}.csv")
-        
-        for movie in movies: # nmz lathos thelei iloc isos?
-            title = movie['title'].lower()
-            title = title.replace(' ','-')
+    # id = 157336 #interstellar
+    
+    # for year in range(2000, 2026):
+    year = 2003    
+    movies = pd.read_csv(f"movies_from_{year}.csv")
+    all_letterboxd_score = []
+    all_letterboxd_count = []
+    all_imdb_score = []
+    all_imdb_count = []
 
-            letterboxd_url = f'https://letterboxd.com/film/{title}/'
-            letterboxd_soup = make_soup(letterboxd_url)
-            letterboxd_score, letterboxd_count = get_letterboxd_score(letterboxd_soup)
+    # for imdb_id in movies['imdb_id']:
+        # letterboxd_page = get_letterboxd_page(imdb_id)
 
-            movies['letterboxd_score'] = letterboxd_score
-            movies['letterboxd_count'] = letterboxd_count
+        # letterboxd_score, letterboxd_count = get_letterboxd_score(letterboxd_page)
+        # all_letterboxd_score.append(letterboxd_score)
+        # all_letterboxd_count.append(letterboxd_count)
 
-            imdb_url = f'https://www.imdb.com/title/{movie['imdb_id']}/'
-            imdb_soup = make_soup(imdb_url)
-            imdb_score, imdb_count = get_letterboxd_score(imdb_soup)
+        # imdb_url = f'https://www.imdb.com/title/{imdb_id}/'
+        # imdb_soup = make_soup(imdb_url)
+        # imdb_score, imdb_count = get_imdb_score(imdb_soup)
+        # all_imdb_score.append(imdb_score)
+        # all_imdb_count.append(imdb_count)
 
-            movies['imdb_score'] = imdb_score
-            movies['imdb_count'] = imdb_count
+    # movies['letterboxd_score'] = all_letterboxd_score
+    # movies['letterboxd_count'] = all_letterboxd_count
 
-            movies.to_csv(f'movies_from_{year}.csv', index=False)
+    # movies['imdb_score'] = all_imdb_score
+    # movies['imdb_count'] = all_imdb_count
 
-
+    # movies.to_csv(f'more_from_movies_from_{year}.csv', index=False)
 
 if __name__ == '__main__': main()
