@@ -2,9 +2,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-for year in range(2000, 2005):
+for year in range(2000, 2026):
 
     movies = pd.read_csv(f"movies_from_{year}.csv")
+    movies['release_date'] = pd.to_datetime(movies['release_date'])
+    movies['year'] = movies['release_date'].dt.year
     # try:
     #     movies['release_date'] = pd.to_datetime(movies['release_date'], format='mixed')
 
@@ -12,9 +14,13 @@ for year in range(2000, 2005):
     #     print(f"Problem in {year}: {e}")
     #     break
 
-    # movies = movies[(movies['certification'] != 'NR') & (movies['vote_count'] > 500)]
+    movies = movies[(movies['certification'] != 'NR') & (movies['vote_count'] > 500)]
     # movies = movies[(movies['vote_count'] > 500)]
     # movies = movies[(movies['certification'] != 'NR')]
+
+    # sns.barplot(x=movies['year'], y=movies['vote_count'].mean())
+    ax = sns.boxplot(data=movies, x='year', y='vote_count')
+    ax.set_ylim([0, 12000])
 
     # sns.histplot(data=movies, x="certification")
 
