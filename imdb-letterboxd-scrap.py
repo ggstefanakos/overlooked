@@ -2,6 +2,11 @@ import requests
 from bs4 import BeautifulSoup
 from time import sleep
 import pandas as pd
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 def make_soup(url): # Returns BeautifulSoup Object of the url's page
     sleep(1)
@@ -59,18 +64,35 @@ def get_letterboxd_page(imdb_id):
 
     return page_url
 
-def get_imdb_score(soup):
-    score = soup.find('span', class_='ipc-rating-star--rating')
-    count = soup.find('span', class_='vote-count')
-    
-    if 'K' in count:
-        count = float(count[:-1]) * 1e3
-    elif 'M' in count:
-        count = float(count[:-1]) * 1e6
-    else:
-        count = float(count)
+def get_imdb_score(url):
+    service = Service(executable_path="geckodriver.exe")
+    driver = webdriver.Firefox(service=service)
 
-    return float(score), count
+    driver.get(url)
+
+    WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "ipc-rating-star--rating"))
+    )
+    imdb_score = float(driver.find_element(By.CLASS_NAME, "ipc-rating-star--rating").text)
+
+    WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "vote-count"))
+    )
+
+    imdb_count = driver.find_element(By.CLASS_NAME, "vote-count").text
+
+    sleep(0.5)
+
+    driver.quit()
+
+    if 'K' in imdb_count:
+        imdb_count = float(imdb_count[:-1]) * 1e3
+    elif 'M' in imdb_count:
+        imdb_count = float(imdb_count[:-1]) * 1e6
+    else:
+        imdb_count = float(imdb_count)
+
+    return imdb_score, imdb_count
     
 def main():
     # id = 157336 #interstellar
@@ -91,10 +113,10 @@ def main():
         # all_letterboxd_count.append(letterboxd_count)
 
         # imdb_url = f'https://www.imdb.com/title/{imdb_id}/'
-        # imdb_soup = make_soup(imdb_url)
-        # imdb_score, imdb_count = get_imdb_score(imdb_soup)
+        # imdb_score, imdb_count = get_imdb_score(imdb_url)
         # all_imdb_score.append(imdb_score)
         # all_imdb_count.append(imdb_count)
+        # print(f'[{imdb_id}] Score: {imdb_score}, count: {imdb_count}')
 
     # movies['letterboxd_score'] = all_letterboxd_score
     # movies['letterboxd_count'] = all_letterboxd_count
