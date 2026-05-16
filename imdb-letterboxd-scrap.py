@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 def make_soup(url): # Returns BeautifulSoup Object of the url's page
-    sleep(1)
+    sleep(0.5)
     headers = {'User-Agent': "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:145.0) Gecko/20100101 Firefox/145.0"}
     r = requests.get(url, headers=headers)
 
@@ -58,9 +58,13 @@ def get_letterboxd_score(soup):
 #         return title_page_soup
 
 def get_letterboxd_page(imdb_id):
-    url = f'https://letterboxd.com/search/films/imdb:{imdb_id}/'
+    service = Service(executable_path="geckodriver.exe")
+    driver = webdriver.Firefox(service=service)
 
-    page_url = '1st result' + url
+    driver.get(f"https://letterboxd.com/imdb/{imdb_id}")
+    
+    page_url = driver.current_url
+    driver.quit()
 
     return page_url
 
@@ -96,7 +100,6 @@ def get_imdb_score(url):
     
 def main():
     # id = 157336 #interstellar
-    save_page('https://letterboxd.com/imdb/tt0816692','int.html')
     
     # for year in range(2000, 2026):
     year = 2003    
@@ -106,12 +109,14 @@ def main():
     all_imdb_score = []
     all_imdb_count = []
 
-    # for imdb_id in movies['imdb_id']:
-        # letterboxd_page = get_letterboxd_page(imdb_id)
+    for imdb_id in movies['imdb_id']:
+        letterboxd_page = get_letterboxd_page(imdb_id)
 
-        # letterboxd_score, letterboxd_count = get_letterboxd_score(letterboxd_page)
+        letterboxd_score, letterboxd_count = get_letterboxd_score(make_soup(letterboxd_page))
         # all_letterboxd_score.append(letterboxd_score)
         # all_letterboxd_count.append(letterboxd_count)
+
+        print(f'[{imdb_id}] Score: {letterboxd_score}, count: {letterboxd_count}')
 
         # imdb_url = f'https://www.imdb.com/title/{imdb_id}/'
         # imdb_score, imdb_count = get_imdb_score(imdb_url)
