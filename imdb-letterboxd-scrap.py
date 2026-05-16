@@ -96,6 +96,7 @@ def get_imdb_score(url):
     
 def main():
     # id = 157336 #interstellar
+    save_page('https://letterboxd.com/imdb/tt0816692','int.html')
     
     # for year in range(2000, 2026):
     year = 2003    

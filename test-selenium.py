@@ -8,7 +8,9 @@ from time import sleep
 service = Service(executable_path="geckodriver.exe")
 driver = webdriver.Firefox(service=service)
 
-driver.get("https://www.imdb.com/title/tt0816692")
+### Letterboxd Scrape
+
+driver.get("https://letterboxd.com/imdb/tt0816692")
 
 # WebDriverWait(driver, 5).until(
 #     EC.presence_of_element_located((By.CLASS_NAME, "fc-button-label"))
@@ -17,30 +19,51 @@ driver.get("https://www.imdb.com/title/tt0816692")
 # cookies_button.click()
 
 # WebDriverWait(driver, 5).until(
+#     EC.presence_of_element_located((By.CLASS_NAME, "averagerating tooltip"))
+# )
+
+# score_info = driver.find_element(By.CLASS_NAME, "averagerating tooltip")
+
+WebDriverWait(driver, 5).until(
+    EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "ratings"))
+)
+
+score_info = driver.find_element(By.PARTIAL_LINK_TEXT, "ratings")
+
+print(score_info.get_attribute('data-original-title'))
+print(score_info.get_property('data-original-title'))
+
+# WebDriverWait(driver, 5).until(
 #     EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Interstellar"))
 # )
 
 # link = driver.find_element(By.PARTIAL_LINK_TEXT, "Interstellar")
 # link.click()
 
-WebDriverWait(driver, 5).until(
-    EC.presence_of_element_located((By.CLASS_NAME, "ipc-rating-star--rating"))
-)
-imdb_score = driver.find_element(By.CLASS_NAME, "ipc-rating-star--rating").text
 
-WebDriverWait(driver, 5).until(
-    EC.presence_of_element_located((By.CLASS_NAME, "vote-count"))
-)
+### IMDB Scrape
 
-imdb_count = driver.find_element(By.CLASS_NAME, "vote-count").text
+# driver.get("https://www.imdb.com/title/tt0816692")
+
+# WebDriverWait(driver, 5).until(
+#     EC.presence_of_element_located((By.CLASS_NAME, "ipc-rating-star--rating"))
+# )
+# imdb_score = driver.find_element(By.CLASS_NAME, "ipc-rating-star--rating").text
+
+# WebDriverWait(driver, 5).until(
+#     EC.presence_of_element_located((By.CLASS_NAME, "vote-count"))
+# )
+
+# imdb_count = driver.find_element(By.CLASS_NAME, "vote-count").text
+
 
 sleep(0.5)
 
 driver.quit()
 
-if 'K' in imdb_count:
-    imdb_count = float(imdb_count[:-1]) * 1e3
-elif 'M' in imdb_count:
-    imdb_count = float(imdb_count[:-1]) * 1e6
-else:
-    imdb_count = float(imdb_count)
+# if 'K' in imdb_count:
+#     imdb_count = float(imdb_count[:-1]) * 1e3
+# elif 'M' in imdb_count:
+#     imdb_count = float(imdb_count[:-1]) * 1e6
+# else:
+#     imdb_count = float(imdb_count)
