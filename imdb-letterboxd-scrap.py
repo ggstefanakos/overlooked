@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from time import sleep
+from time import sleep,perf_counter
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
@@ -57,22 +57,16 @@ def get_letterboxd_score(soup):
 #         title_page_soup = search_page_url + '1st result'
 #         return title_page_soup
 
-def get_letterboxd_page(imdb_id):
-    service = Service(executable_path="geckodriver.exe")
-    driver = webdriver.Firefox(service=service)
+def get_letterboxd_page(imdb_id, driver):
 
-    driver.get(f"https://letterboxd.com/imdb/{imdb_id}")
-    
+    driver.get(f"https://letterboxd.com/imdb/{imdb_id}")    
     page_url = driver.current_url
-    driver.quit()
 
     return page_url
 
-def get_imdb_score(url):
-    service = Service(executable_path="geckodriver.exe")
-    driver = webdriver.Firefox(service=service)
+def get_imdb_score(imdb_id, driver):
 
-    driver.get(url)
+    driver.get(f'https://www.imdb.com/title/{imdb_id}/')
 
     WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.CLASS_NAME, "ipc-rating-star--rating"))
@@ -85,10 +79,6 @@ def get_imdb_score(url):
 
     imdb_count = driver.find_element(By.CLASS_NAME, "vote-count").text
 
-    sleep(0.5)
-
-    driver.quit()
-
     if 'K' in imdb_count:
         imdb_count = float(imdb_count[:-1]) * 1e3
     elif 'M' in imdb_count:
@@ -99,37 +89,51 @@ def get_imdb_score(url):
     return imdb_score, imdb_count
     
 def main():
-    # id = 157336 #interstellar
     
-    # for year in range(2000, 2026):
-    year = 2003    
-    movies = pd.read_csv(f"movies_from_{year}.csv")
-    all_letterboxd_score = []
-    all_letterboxd_count = []
-    all_imdb_score = []
-    all_imdb_count = []
+    for year in range(2000, 2026):
+        start = perf_counter()
+        last_time = 0.0
+        # year = 2003
+        print(f'Year: {year}:')    
+        movies = pd.read_csv(f"movies_from_{year}.csv")
+        all_letterboxd_score = []
+        all_letterboxd_count = []
+        all_imdb_score = []
+        all_imdb_count = []
 
-    for imdb_id in movies['imdb_id']:
-        letterboxd_page = get_letterboxd_page(imdb_id)
+        
 
-        letterboxd_score, letterboxd_count = get_letterboxd_score(make_soup(letterboxd_page))
-        # all_letterboxd_score.append(letterboxd_score)
-        # all_letterboxd_count.append(letterboxd_count)
+        for i in range(len(movies)):
 
-        print(f'[{imdb_id}] Score: {letterboxd_score}, count: {letterboxd_count}')
+            movie = movies.iloc[i]
+            imdb_id = movie['imdb_id']
+            title = movie['title']
 
-        # imdb_url = f'https://www.imdb.com/title/{imdb_id}/'
-        # imdb_score, imdb_count = get_imdb_score(imdb_url)
-        # all_imdb_score.append(imdb_score)
-        # all_imdb_count.append(imdb_count)
-        # print(f'[{imdb_id}] Score: {imdb_score}, count: {imdb_count}')
+            service = Service(executable_path="geckodriver.exe")
+            driver = webdriver.Firefox(service=service)
 
-    # movies['letterboxd_score'] = all_letterboxd_score
-    # movies['letterboxd_count'] = all_letterboxd_count
+            print(f'\tProgress {i/(len(movies)-1):.2%} ({i}/{len(movies)-1}) | Elapsed: {(perf_counter() - start)/60:.2f} min (+{(perf_counter() - start - last_time)/60:.2f} min)')
 
-    # movies['imdb_score'] = all_imdb_score
-    # movies['imdb_count'] = all_imdb_count
+            letterboxd_score, letterboxd_count = get_letterboxd_score(make_soup(get_letterboxd_page(imdb_id, driver)))
+            all_letterboxd_score.append(letterboxd_score)
+            all_letterboxd_count.append(letterboxd_count)
+            # print(f'\t\t[{title}] Score: {letterboxd_score}, count: {letterboxd_count} (L)')
 
-    # movies.to_csv(f'more_from_movies_from_{year}.csv', index=False)
+            imdb_score, imdb_count = get_imdb_score(imdb_id, driver)
+            all_imdb_score.append(imdb_score)
+            all_imdb_count.append(imdb_count)
+            # print(f'\t\t[{title}] Score: {imdb_score}, count: {imdb_count} (I)')
+
+            driver.quit()
+
+        last_time = perf_counter()
+
+        movies['letterboxd_score'] = all_letterboxd_score
+        movies['letterboxd_count'] = all_letterboxd_count
+
+        movies['imdb_score'] = all_imdb_score
+        movies['imdb_count'] = all_imdb_count
+
+        movies.to_csv(f'more_from_movies_from_{year}.csv', index=False)
 
 if __name__ == '__main__': main()
