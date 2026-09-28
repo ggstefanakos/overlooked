@@ -40,5 +40,6 @@ movies['year'] = movies['release_date'].dt.year
 # print(movies.corr(numeric_only=True))
 # print(f'{movies['certification'].value_counts()}')
 
-sns.lmplot(data=movies, x="budget", y="revenue", hue='certification', scatter=True)
+sns.lmplot(data=movies, x="budget", y="revenue", hue='certification', scatter=True, height=15)
+# plt.savefig(f"budget_revenue_line_plot.png", bbox_inches='tight')
 plt.show()
